@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mi Entrenamiento</title>
+<style>
+:root{--bg:#0b1220;--panel:#131e31;--panel2:#1b2940;--text:#f2f6ff;--muted:#aab8cf;--accent:#6ee7b7;--line:#2b3a52}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#0b1220,#101b2d);color:var(--text);font:16px system-ui,-apple-system,sans-serif}
+main{max-width:760px;margin:auto;padding:18px 14px 40px}.hero{padding:22px 18px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(135deg,#162740,#102034)}
+h1{margin:0 0 6px;font-size:27px}.sub{color:var(--muted);font-size:14px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.tabs button,button,select,input{font:inherit}
+button,.tab{border:0;border-radius:12px;padding:11px 13px;background:var(--panel2);color:var(--text);cursor:pointer}.tabs button.active,.primary{background:var(--accent);color:#06261b;font-weight:700}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:15px;margin:12px 0}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1;min-width:100px}label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}input,select{width:100%;background:#0c1627;border:1px solid var(--line);color:var(--text);padding:10px;border-radius:10px}h2{font-size:19px;margin:4px 0 12px}.exercise{padding:13px 0;border-top:1px solid var(--line)}.exercise:first-of-type{border-top:0}.exercise h3{font-size:16px;margin:0 0 10px}.sets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.set{background:#0e192b;padding:9px;border-radius:12px}.set strong{font-size:12px;color:var(--accent)}.small{font-size:12px;color:var(--muted)}.hide{display:none}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:var(--panel2);border-radius:12px;padding:12px}.stat b{display:block;font-size:22px}.danger{background:#542b36}.success{color:var(--accent)}.footer{color:var(--muted);font-size:12px;margin-top:20px;line-height:1.5}
+@media(min-width:600px){.sets{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style></head>
+<body><main>
+<section class="hero"><div class="sub">TU REGISTRO PERSONAL</div><h1>Mi Entrenamiento 💪</h1><div class="sub">Pesas · Running · Progreso semanal</div></section>
+<div class="tabs">
+<button class="active" data-tab="pesas">🏋️ Pesas</button><button data-tab="running">🏃 Running</button><button data-tab="historial">📈 Historial</button>
+</div>
+<section id="pesas">
+<div class="card">
+<div class="row"><div><label>Fecha de entrenamiento</label><input id="workoutDate" type="date"></div><div><label>Rutina</label><select id="routine"><option value="Lunes · Superior A">Lunes · Superior A</option><option value="Miércoles · Piernas y glúteos">Miércoles · Piernas y glúteos</option><option value="Viernes · Superior B + core">Viernes · Superior B + core</option></select></div></div>
+<p class="small">Anota kg y repeticiones por serie. Guarda la sesión al terminar.</p>
+</div><div id="exerciseList"></div>
+<div class="card"><label>Notas de la sesión</label><input id="sessionNotes" placeholder="Ej. buena energía, descansos de 90 s..."><button class="primary" id="saveWorkout" style="width:100%;margin-top:12px">Guardar entrenamiento</button><p class="small" id="saveMsg"></p></div>
+</section>
+<section id="running" class="hide">
+<div class="card"><h2>Registrar running</h2><div class="row"><div><label>Fecha</label><input id="runDate" type="date"></div><div><label>Sesión</label><select id="runType"><option>Martes · Suave</option><option>Jueves · Suave</option><option>Sábado · Largo</option><option>Otro</option></select></div></div>
+<div class="row" style="margin-top:10px"><div><label>Distancia (km)</label><input id="distance" type="number" min="0" step=".1" placeholder="Ej. 3.5"></div><div><label>Tiempo total (min)</label><input id="minutes" type="number" min="0" step="1" placeholder="Ej. 32"></div></div>
+<div class="row" style="margin-top:10px"><div><label>Esfuerzo (1–10)</label><select id="effort"><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option></select></div><div><label>¿Podías conversar?</label><select id="talk"><option>Sí</option><option>A ratos</option><option>No</option></select></div></div>
+<div style="margin-top:10px"><label>Notas</label><input id="runNotes" placeholder="Sensaciones, clima, molestias..."></div><button class="primary" id="saveRun" style="width:100%;margin-top:12px">Guardar running</button><p class="small" id="runMsg"></p></div>
+</section>
+<section id="historial" class="hide"><div class="stats" id="stats"></div><div class="card"><div class="row"><h2 style="flex:2">Sesiones guardadas</h2><button id="export">Exportar CSV</button></div><div id="historyList"></div></div><button class="danger" id="clearAll">Borrar todos los registros</button><p class="small">Los datos se guardan en este navegador/dispositivo. Exporta CSV como respaldo antes de cambiar de teléfono o navegador.</p></section>
+<div class="footer">Consejo: durante las primeras semanas termina cada serie sintiendo que podrías hacer unas 3 repeticiones más. Si aparece dolor articular, detén el ejercicio y adapta la sesión.</div>
+</main>
+<script>
+const routines={
+"Lunes · Superior A":[["Press de pecho en máquina",2,10,12],["Remo sentado en polea",2,10,12],["Jalón al pecho",2,10,12],["Press de hombros con mancuernas",2,10,12],["Elevaciones laterales",2,12,15],["Curl de bíceps",2,12,15]],
+"Miércoles · Piernas y glúteos":[["Prensa de piernas",2,10,12],["Peso muerto rumano con mancuernas",2,10,12],["Hip thrust en máquina",2,10,12],["Curl femoral sentado",2,12,15],["Extensión de piernas",2,12,15],["Elevación de pantorrillas",2,12,15]],
+"Viernes · Superior B + core":[["Press inclinado en máquina",2,10,12],["Remo sentado en polea",2,10,12],["Jalón al pecho con agarre neutro",2,10,12],["Face pull en polea",2,12,15],["Crunch abdominal",2,12,15],["Plancha abdominal (segundos)",2,20,30]]
+};
+const $=id=>document.getElementById(id), today=new Date().toLocaleDateString('en-CA');
+$('workoutDate').value=today;$('runDate').value=today;
+let data=JSON.parse(localStorage.getItem('trainingLogV1')||'{"pesas":[],"running":[]}');
+function persist(){localStorage.setItem('trainingLogV1',JSON.stringify(data))}
+function renderExercises(){
+ const list=$('exerciseList');list.innerHTML='';
+ routines[$('routine').value].forEach((e,i)=>{
+  const div=document.createElement('div');div.className='card';
+  let sets='';for(let s=1;s<=3;s++){sets+=`<div class="set"><strong>SERIE ${s}</strong><div class="row" style="gap:6px;margin-top:6px"><div><label>${e[0].includes('Plancha')?'Segundos':'Kg'}</label><input type="number" min="0" step=".5" id="w_${i}_${s}" placeholder="${s<=e[1]?'Registrar':'Opcional'}"></div><div><label>${e[0].includes('Plancha')?'Segundos':'Reps'}</label><input type="number" min="0" step="1" id="r_${i}_${s}" placeholder="${e[2]}–${e[3]}"></div></div></div>`}
+  div.innerHTML=`<h3>${i+1}. ${e[0]}</h3><div class="small">Objetivo: ${e[1]} series · ${e[2]}–${e[3]} repeticiones</div><div class="sets" style="margin-top:8px">${sets}</div>`;list.appendChild(div);
+ });
+}
+$('routine').addEventListener('change',renderExercises);renderExercises();
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));['pesas','running','historial'].forEach(id=>$(id).classList.toggle('hide',id!==b.dataset.tab));if(b.dataset.tab==='historial')renderHistory()});
+$('saveWorkout').onclick=()=>{
+ const routine=$('routine').value, exercises=routines[routine].map((e,i)=>({name:e[0],sets:[1,2,3].map(s=>({weight:$(`w_${i}_${s}`).value,reps:$(`r_${i}_${s}`).value})).filter(x=>x.weight!==''||x.reps!=='')}));
+ if(!exercises.some(e=>e.sets.length)){ $('saveMsg').textContent='Registra al menos una serie antes de guardar.';return}
+ data.pesas.unshift({date:$('workoutDate').value,routine,exercises,notes:$('sessionNotes').value,created:Date.now()});persist();$('saveMsg').textContent='¡Entrenamiento guardado!';$('sessionNotes').value='';
+}
+$('saveRun').onclick=()=>{if(!$('distance').value||!$('minutes').value){$('runMsg').textContent='Completa distancia y tiempo.';return}
+data.running.unshift({date:$('runDate').value,type:$('runType').value,distance:$('distance').value,minutes:$('minutes').value,pace:(+$('minutes').value/+$('distance').value).toFixed(2),effort:$('effort').value,talk:$('talk').value,notes:$('runNotes').value});persist();$('runMsg').textContent='¡Running guardado!';$('distance').value='';$('minutes').value='';$('runNotes').value='';}
+function renderHistory(){
+ $('stats').innerHTML=`<div class="stat"><span class="small">Pesas</span><b>${data.pesas.length}</b><span class="small">sesiones</span></div><div class="stat"><span class="small">Running</span><b>${data.running.length}</b><span class="small">sesiones</span></div><div class="stat"><span class="small">Km totales</span><b>${data.running.reduce((a,x)=>a+(+x.distance||0),0).toFixed(1)}</b><span class="small">kilómetros</span></div>`;
+ let all=[...data.pesas.map(x=>({...x,kind:'🏋️'})),...data.running.map(x=>({...x,kind:'🏃'}))].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+ $('historyList').innerHTML=all.length?all.map(x=>`<div class="exercise"><strong>${x.kind} ${esc(x.date)} · ${esc(x.routine||x.type)}</strong><div class="small">${x.kind==='🏃'?`${esc(x.distance)} km · ${esc(x.minutes)} min · ritmo ${esc(x.pace)} min/km`:`${x.exercises.length} ejercicios registrados`}</div>${x.notes?`<div class="small">${esc(x.notes)}</div>`:''}</div>`).join(''):'<p class="small">Todavía no hay sesiones. Guarda tu primer entrenamiento para ver el historial.</p>';
+}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('export').onclick=()=>{let rows=[['tipo','fecha','sesion','ejercicio','serie','peso_kg','repeticiones','distancia_km','tiempo_min','ritmo','notas']];data.pesas.forEach(x=>x.exercises.forEach(e=>e.sets.forEach((s,i)=>rows.push(['pesas',x.date,x.routine,e.name,i+1,s.weight,s.reps,'','','',x.notes]))));data.running.forEach(x=>rows.push(['running',x.date,x.type,'','','','',x.distance,x.minutes,x.pace,x.notes]));let csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download='mi_entrenamiento.csv';a.click();URL.revokeObjectURL(a.href)};
+$('clearAll').onclick=()=>{if(confirm('¿Seguro que quieres borrar todos los registros? Esta acción no se puede deshacer.')){data={pesas:[],running:[]};persist();renderHistory()}};
+</script></body></html>
